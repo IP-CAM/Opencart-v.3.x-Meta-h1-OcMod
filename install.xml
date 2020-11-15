@@ -19,7 +19,11 @@
         </operation>
         <operation>
             <search><![CDATA[if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {]]></search>
-            <add position="before"><![CDATA[
+            <add offset="2" position="replace"><![CDATA[
+                if ((utf8_strlen($value['meta_title']) < 0) || (utf8_strlen($value['meta_title']) > 255)) {
+                    $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
+                }
+
                 if ((utf8_strlen($value['meta_h1']) < 0) || (utf8_strlen($value['meta_h1']) > 255)) {
                     $this->error['meta_h1'][$language_id] = $this->language->get('error_meta_h1');
                 }
@@ -29,67 +33,81 @@
     <file path="admin/model/catalog/category.php">
         <operation>
             <search><![CDATA["', meta_description = '"]]></search>
-            <add position="replace"><![CDATA[
-                "', meta_h1 = '" . $this->db->escape($value['meta_h1']) . ", meta_description = '"
-		    ]]></add>
+            <add position="replace"><![CDATA["', meta_h1 = '" . $this->db->escape($value['meta_h1']) . "', meta_description = '"]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA['meta_title'       => $result['meta_title'],]]></search>
+            <add position="after"><![CDATA['meta_h1'       => $result['meta_h1'],]]></add>
         </operation>
     </file>
     <file path="admin/language/en-gb/catalog/category.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML H1 tag';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML H1 tag';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';]]></add>
         </operation>
     </file>
     <file path="admin/language/ru-ru/catalog/category.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML-тег H1';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML-тег H1';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';]]></add>
         </operation>
     </file>
     <file path="admin/language/uk-ua/catalog/category.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML-тег H1';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML-тег H1';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';]]></add>
         </operation>
     </file>
     <file path="admin/view/template/catalog/category_form.twig">
         <operation>
-            <search><![CDATA[<label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>]]></search>
-            <add offset="2" position="before"><![CDATA[
-                <div class="form-group required">
-                    <label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_h1 }}</label>
+            <search index="0"><![CDATA[<div class="form-group">]]></search>
+            <add offset="5" position="replace"><![CDATA[]]></add>
+        </operation>
+        <operation>
+            <search index="1"><![CDATA[<div class="form-group required">]]></search>
+            <add offset="8" position="replace"><![CDATA[
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>
                     <div class="col-sm-10">
-                        <input type="text" name="product_description[{{ language.language_id }}][meta_h1]" value="{{ product_description[language.language_id] ? product_description[language.language_id].meta_h1 }}" placeholder="{{ entry_meta_h1 }}" id="input-meta-h1{{ language.language_id }}" class="form-control"/>
+                        <input type="text" name="category_description[{{ language.language_id }}][meta_title]" value="{{ category_description[language.language_id] ? category_description[language.language_id].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title{{ language.language_id }}" class="form-control" />
+                        {% if error_meta_title[language.language_id] %}
+                            <div class="text-danger">{{ error_meta_title[language.language_id] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-meta-h1{{ language.language_id }}">{{ entry_meta_h1 }}</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="category_description[{{ language.language_id }}][meta_h1]" value="{{ category_description[language.language_id] ? category_description[language.language_id].meta_h1 }}" placeholder="{{ entry_meta_h1 }}" id="input-meta-h1{{ language.language_id }}" class="form-control"/>
                         {% if error_meta_h1[language.language_id] %}
                             <div class="text-danger">{{ error_meta_h1[language.language_id] }}</div>
                         {% endif %}
                     </div>
                 </div>
 		    ]]></add>
+        </operation>
+        <operation>
+            <search index="3"><![CDATA[<div class="form-group">]]></search>
+            <add offset="5" position="after"><![CDATA[
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
+                    <div class="col-sm-10">
+                        <textarea name="category_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ category_description[language.language_id] ? category_description[language.language_id].description }}</textarea>
+                    </div>
+                </div>
+            ]]></add>
         </operation>
     </file>
     <file path="catalog/controller/product/category.php">
@@ -128,7 +146,11 @@
         </operation>
         <operation>
             <search><![CDATA[if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {]]></search>
-            <add position="before"><![CDATA[
+            <add offset="2" position="replace"><![CDATA[
+                if ((utf8_strlen($value['meta_title']) < 0) || (utf8_strlen($value['meta_title']) > 255)) {
+                    $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
+                }
+
                 if ((utf8_strlen($value['meta_h1']) < 0) || (utf8_strlen($value['meta_h1']) > 255)) {
                     $this->error['meta_h1'][$language_id] = $this->language->get('error_meta_h1');
                 }
@@ -138,58 +160,57 @@
     <file path="admin/model/catalog/product.php">
         <operation>
             <search><![CDATA["', meta_description = '"]]></search>
-            <add position="replace"><![CDATA[
-                "', meta_h1 = '" . $this->db->escape($value['meta_h1']) . ", meta_description = '"
-		    ]]></add>
+            <add position="replace"><![CDATA["', meta_h1 = '" . $this->db->escape($value['meta_h1']) . "', meta_description = '"]]></add>
         </operation>
     </file>
     <file path="admin/language/en-gb/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML H1 tag';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML H1 tag';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';]]></add>
         </operation>
     </file>
     <file path="admin/language/ru-ru/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML-тег H1';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML-тег H1';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';]]></add>
         </operation>
     </file>
     <file path="admin/language/uk-ua/catalog/product.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML-тег H1';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML-тег H1';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';]]></add>
         </operation>
     </file>
     <file path="admin/view/template/catalog/product_form.twig">
         <operation>
-            <search><![CDATA[<label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>]]></search>
-            <add offset="2" position="before"><![CDATA[
-                <div class="form-group required">
+            <search index="0"><![CDATA[<div class="form-group">]]></search>
+            <add offset="5" position="replace"><![CDATA[]]></add>
+        </operation>
+        <operation>
+            <search index="1"><![CDATA[<div class="form-group required">]]></search>
+            <add offset="7" position="replace"><![CDATA[
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="product_description[{{ language.language_id }}][meta_title]" value="{{ product_description[language.language_id] ? product_description[language.language_id].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title{{ language.language_id }}" class="form-control"/>
+                        {% if error_meta_title[language.language_id] %}
+                            <div class="text-danger">{{ error_meta_title[language.language_id] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-sm-2 control-label" for="input-meta-h1{{ language.language_id }}">{{ entry_meta_h1 }}</label>
                     <div class="col-sm-10">
                         <input type="text" name="product_description[{{ language.language_id }}][meta_h1]" value="{{ product_description[language.language_id] ? product_description[language.language_id].meta_h1 }}" placeholder="{{ entry_meta_h1 }}" id="input-meta-h1{{ language.language_id }}" class="form-control"/>
@@ -199,6 +220,17 @@
                     </div>
                 </div>
 		    ]]></add>
+        </operation>
+        <operation>
+            <search index="4"><![CDATA[<div class="form-group">]]></search>
+            <add position="before"><![CDATA[
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
+                    <div class="col-sm-10">
+                        <textarea name="product_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_description[language.language_id] ? product_description[language.language_id].description }}</textarea>
+                    </div>
+                </div>
+            ]]></add>
         </operation>
     </file>
     <file path="catalog/model/catalog/product.php">
@@ -236,6 +268,12 @@
         <operation>
             <search><![CDATA[if (isset($this->error['meta_title'])) {]]></search>
             <add position="before"><![CDATA[
+                if (isset($this->error['description'])) {
+                    $data['error_description'] = $this->error['description'];
+                } else {
+                    $data['error_description'] = array();
+                }
+
                 if (isset($this->error['meta_h1'])) {
                     $data['error_meta_h1'] = $this->error['meta_h1'];
                 } else {
@@ -245,7 +283,11 @@
         </operation>
         <operation>
             <search><![CDATA[if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {]]></search>
-            <add position="before"><![CDATA[
+            <add offset="2" position="replace"><![CDATA[
+                if ((utf8_strlen($value['meta_title']) < 0) || (utf8_strlen($value['meta_title']) > 255)) {
+                    $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
+                }
+
                 if ((utf8_strlen($value['meta_h1']) < 0) || (utf8_strlen($value['meta_h1']) > 255)) {
                     $this->error['meta_h1'][$language_id] = $this->language->get('error_meta_h1');
                 }
@@ -255,58 +297,57 @@
     <file path="admin/model/catalog/information.php">
         <operation>
             <search><![CDATA["', meta_description = '"]]></search>
-            <add position="replace"><![CDATA[
-                "', meta_h1 = '" . $this->db->escape($value['meta_h1']) . ", meta_description = '"
-		    ]]></add>
+            <add position="replace"><![CDATA["', meta_h1 = '" . $this->db->escape($value['meta_h1']) . "', meta_description = '"]]></add>
         </operation>
     </file>
     <file path="admin/language/en-gb/catalog/information.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML H1 tag';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML H1 tag';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';]]></add>
         </operation>
     </file>
     <file path="admin/language/ru-ru/catalog/information.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML-тег H1';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML-тег H1';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';]]></add>
         </operation>
     </file>
     <file path="admin/language/uk-ua/catalog/information.php">
         <operation>
             <search><![CDATA[$_['entry_meta_title']]]></search>
-            <add position="after"><![CDATA[
-                $_['entry_meta_h1']          = 'HTML-тег H1';
-		    ]]></add>
+            <add position="after"><![CDATA[$_['entry_meta_h1']          = 'HTML-тег H1';]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_meta_title']]]></search>
-            <add position="replace"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';
-		    ]]></add>
+            <add position="replace"><![CDATA[$_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';]]></add>
         </operation>
     </file>
     <file path="admin/view/template/catalog/information_form.twig">
         <operation>
-            <search><![CDATA[<label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>]]></search>
-            <add offset="2" position="before"><![CDATA[
+            <search index="1"><![CDATA[<div class="form-group required">]]></search>
+            <add offset="7" position="replace"><![CDATA[]]></add>
+        </operation>
+        <operation>
+            <search index="1"><![CDATA[<div class="form-group required">]]></search>
+            <add offset="7" position="replace"><![CDATA[
                 <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="information_description[{{ language.language_id }}][meta_title]" value="{{ information_description[language.language_id] ? information_description[language.language_id].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title{{ language.language_id }}" class="form-control" />
+                        {% if error_meta_title[language.language_id] %}
+                            <div class="text-danger">{{ error_meta_title[language.language_id] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-sm-2 control-label" for="input-meta-h1{{ language.language_id }}">{{ entry_meta_h1 }}</label>
                     <div class="col-sm-10">
                         <input type="text" name="information_description[{{ language.language_id }}][meta_h1]" value="{{ information_description[language.language_id] ? information_description[language.language_id].meta_h1 }}" placeholder="{{ entry_meta_h1 }}" id="input-meta-h1{{ language.language_id }}" class="form-control" />
@@ -316,6 +357,19 @@
                     </div>
                 </div>
 		    ]]></add>
+        </operation>
+        <operation>
+            <search index="2"><![CDATA[<div class="form-group">]]></search>
+            <add offset="5" position="after"><![CDATA[
+                <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
+                    <div class="col-sm-10">
+                        <textarea name="information_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ information_description[language.language_id] ? information_description[language.language_id].description }}</textarea>
+                        {% if error_description[language.language_id] %}
+                            <div class="text-danger">{{ error_description[language.language_id] }}</div>
+                        {% endif %} </div>
+                </div>
+            ]]></add>
         </operation>
     </file>
     <file path="catalog/controller/information/information.php">
@@ -335,7 +389,7 @@
                 if ($information_info['meta_h1']) {
                     $data['heading_title'] = $information_info['meta_h1'];
                 } else {
-                    $data['heading_title'] = $information_info['name'];
+                    $data['heading_title'] = $information_info['title'];
                 }
 		    ]]></add>
         </operation>
@@ -391,13 +445,15 @@
         </operation>
         <operation>
             <search><![CDATA[if ((utf8_strlen($this->request->post['name']) < 1) || (utf8_strlen($this->request->post['name']) > 64)) {]]></search>
-            <add position="before"><![CDATA[
-                if ((utf8_strlen($value['meta_h1']) < 0) || (utf8_strlen($value['meta_h1']) > 255)) {
-                    $this->error['meta_h1'][$language_id] = $this->language->get('error_meta_h1');
-                }
+            <add offset="2" position="after"><![CDATA[
+                foreach ($this->request->post['manufacturer_description'] as $language_id => $value) {
+                    if ((utf8_strlen($value['meta_title']) < 0) || (utf8_strlen($value['meta_title']) > 255)) {
+                        $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
+                    }
 
-                if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
-                    $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
+                    if ((utf8_strlen($value['meta_h1']) < 0) || (utf8_strlen($value['meta_h1']) > 255)) {
+                        $this->error['meta_h1'][$language_id] = $this->language->get('error_meta_h1');
+                    }
                 }
             ]]></add>
         </operation>
@@ -435,7 +491,7 @@
         </operation>
         <operation>
             <search index="1"><![CDATA[if (isset($data['image'])) {]]></search>
-            <add offset="3" position="after"><![CDATA[
+            <add offset="2" position="after"><![CDATA[
                 $this->db->query("DELETE FROM " . DB_PREFIX . "manufacturer_description WHERE manufacturer_id = '" . (int)$manufacturer_id . "'");
 
                 foreach ($data['manufacturer_description'] as $language_id => $value) {
@@ -488,8 +544,11 @@
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
             <add position="after"><![CDATA[
+                $_['entry_description']      = 'Description';
                 $_['entry_meta_h1']          = 'HTML H1 tag';
                 $_['entry_meta_title']       = 'HTML Meta Title tag';
+                $_['entry_meta_description'] = 'HTML Meta Description tag';
+                $_['entry_meta_keyword']     = 'HTML Meta Keyword tag';
 		    ]]></add>
         </operation>
         <operation>
@@ -497,6 +556,8 @@
             <add position="after"><![CDATA[
                 $_['error_meta_h1']          = 'HTML H1 tag must contain between 0 and 255 characters!';
                 $_['error_meta_title']       = 'HTML Meta Title tag must contain between 0 and 255 characters!';
+                $_['error_meta_description'] = 'HTML Meta Description tag must contain between 0 and 255 characters!';
+                $_['error_meta_keyword']     = 'HTML Meta Keyword tag must contain between 0 and 255 characters!';
 		    ]]></add>
         </operation>
     </file>
@@ -504,8 +565,11 @@
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
             <add position="after"><![CDATA[
+                $_['entry_description']      = 'Описание:';
                 $_['entry_meta_h1']          = 'HTML-тег H1';
                 $_['entry_meta_title']       = 'Мета-тег Title';
+                $_['entry_meta_description'] = 'Мета-тег Description';
+                $_['entry_meta_keyword']     = 'Мета-тег Keywords';
 		    ]]></add>
         </operation>
         <operation>
@@ -513,6 +577,8 @@
             <add position="after"><![CDATA[
                 $_['error_meta_h1']          = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
                 $_['error_meta_title']       = 'Мета-тег Title должен содержать от 0 до 255 символов!';
+                $_['error_meta_description'] = 'Мета-тег Description должен содержать от 0 до 255 символов!';
+                $_['error_meta_keyword']     = 'Мета-тег Keyword должен содержать от 0 до 255 символов!';
 		    ]]></add>
         </operation>
     </file>
@@ -520,34 +586,39 @@
         <operation>
             <search><![CDATA[$_['entry_name']]]></search>
             <add position="after"><![CDATA[
+                $_['entry_description']      = 'Опис:';
                 $_['entry_meta_h1']          = 'HTML-тег H1';
                 $_['entry_meta_title']       = 'Мета-тег Title';
+                $_['entry_meta_description'] = 'Мета-тег Description';
+                $_['entry_meta_keyword']     = 'Мета-тег Keywords';
 		    ]]></add>
         </operation>
         <operation>
             <search><![CDATA[$_['error_name']]]></search>
             <add position="after"><![CDATA[
-                $_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів';
-                $_['error_meta_title']       = 'Мета-тег Title повинен містити від 0 до 255 символів';
+                $_['error_meta_h1']          = 'HTML-тег H1 повинен містити від 0 до 255 символів!';
+                $_['error_meta_title']       = 'Мета-тег Title повинен містити від 0 до 255 символів!';
+                $_['error_meta_description'] = 'Мета-тег Description повинен містити від 0 до 255 символів!';
+                $_['error_meta_keyword']     = 'Мета-тег Keyword повинен містити від 0 до 255 символів!';
 		    ]]></add>
         </operation>
     </file>
     <file path="admin/view/template/catalog/manufacturer_form.twig">
         <operation>
             <search><![CDATA[<li><a href="#tab-seo" data-toggle="tab">{{ tab_seo }}</a></li>]]></search>
-            <add position="after"><![CDATA[<li><a href="#tab-design" data-toggle="tab">{{ tab_design }}</a></li>]]></add>
+            <add position="replace"><![CDATA[<li><a href="#tab-data" data-toggle="tab">{{ tab_data }}</a></li><li><a href="#tab-seo" data-toggle="tab">{{ tab_seo }}</a></li><li><a href="#tab-design" data-toggle="tab">{{ tab_design }}</a></li>]]></add>
         </operation>
         <operation>
-            <search index="1"><![CDATA[<div class="form-group">]]></search>
+            <search index="0"><![CDATA[<div class="form-group">]]></search>
             <add position="before"><![CDATA[
                 <ul class="nav nav-tabs" id="language">
                     {% for language in languages %}
-                        <li><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>
+                        <li{% if loop.index == 1 %} class="active"{% endif %}><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>
                     {% endfor %}
                 </ul>
                 <div class="tab-content">
                     {% for language in languages %}
-                        <div class="tab-pane" id="language{{ language.language_id }}">
+                        <div class="tab-pane{% if loop.index == 1 %} active{% endif %}" id="language{{ language.language_id }}">
                             <div class="form-group">
                                 <label class="col-sm-2 control-label" for="input-meta-h1{{ language.language_id }}">{{ entry_meta_h1 }}</label>
                                 <div class="col-sm-10">
@@ -584,8 +655,46 @@
             ]]></add>
         </operation>
         <operation>
+            <search index="5"><![CDATA[<div class="form-group">]]></search>
+            <add offset="27" position="replace"><![CDATA[]]></add>
+        </operation>
+        <operation>
             <search><![CDATA[</form>]]></search>
-            <add offset="2" position="before"><![CDATA[
+            <add offset="1" position="before"><![CDATA[
+                <div class="tab-pane" id="tab-data">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{ entry_store }}</label>
+                        <div class="col-sm-10">
+                        <div class="well well-sm" style="height: 150px; overflow: auto;">
+                            {% for store in stores %}
+                                <div class="checkbox">
+                                    <label>
+                                        {% if store.store_id in manufacturer_store %}
+                                            <input type="checkbox" name="manufacturer_store[]" value="{{ store.store_id }}" checked="checked" />
+                                            {{ store.name }}
+                                            {% else %}
+                                            <input type="checkbox" name="manufacturer_store[]" value="{{ store.store_id }}" />
+                                            {{ store.name }}
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-image">{{ entry_image }}</label>
+                        <div class="col-sm-10"><a href="" id="thumb-image" data-toggle="image" class="img-thumbnail"><img src="{{ thumb }}" alt="" title="" data-placeholder="{{ placeholder }}" /></a>
+                            <input type="hidden" name="image" value="{{ image }}" id="input-image" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="sort_order" value="{{ sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control" />
+                        </div>
+                    </div>
+                </div>
                 <div class="tab-pane" id="tab-design">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
@@ -618,16 +727,51 @@
                     </div>
                 </div>
             ]]></add>
-        </operation
-        ><operation>
-        <search><![CDATA[{{ footer }}]]></search>
-        <add position="before"><![CDATA[
+        </operation>
+        <operation>
+            <search><![CDATA[{{ footer }}]]></search>
+            <add position="before"><![CDATA[
                 <script type="text/javascript" src="view/javascript/summernote/summernote.js"></script>
                 <link href="view/javascript/summernote/summernote.css" rel="stylesheet"/>
                 <script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
                 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
             ]]></add>
-    </operation>
+        </operation>
+    </file>
+    <file path="catalog/model/catalog/manufacturer.php">
+        <operation>
+            <search><![CDATA[public function getManufacturer($manufacturer_id) {]]></search>
+            <add position="before"><![CDATA[
+                public function getManufacturerLayoutId($manufacturer_id) {
+                    $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "manufacturer_to_layout WHERE manufacturer_id = '" . (int)$manufacturer_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+                    if ($query->num_rows) {
+                        return $query->row['layout_id'];
+                    } else {
+                        return 0;
+                    }
+                }
+		    ]]></add>
+        </operation>
+        <operation>
+            <search index="0"><![CDATA[SELECT *]]></search>
+            <add position="replace"><![CDATA[SELECT DISTINCT *]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA["manufacturer m LEFT JOIN "]]></search>
+            <add position="replace"><![CDATA["manufacturer m LEFT JOIN " . DB_PREFIX . "manufacturer_description md ON (m.manufacturer_id = md.manufacturer_id) LEFT JOIN "]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[m.manufacturer_id = '" . (int)$manufacturer_id . "]]></search>
+            <add position="replace"><![CDATA[m.manufacturer_id = '" . (int)$manufacturer_id . "' AND md.language_id = '" . (int)$this->config->get('config_language_id') . "]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[m2s.store_id = '" . (int)$this->config->get('config_store_id') . "]]></search>
+            <add position="replace"><![CDATA[m2s.store_id = '" . (int)$this->config->get('config_store_id') . "' AND md.language_id = '" . (int)$this->config->get('config_language_id') . "]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA['manufacturer.' . (int)$this->config->get('config_store_id')]]></search>
+            <add position="replace"><![CDATA['manufacturer.' . (int)$this->config->get('config_store_id') . '.' . (int)$this->config->get('config_language_id')]]></add>
+        </operation>
     </file>
     <file path="catalog/controller/product/manufacturer.php">
         <operation>
@@ -637,6 +781,20 @@
                     $this->document->setTitle($manufacturer_info['meta_title']);
                 } else {
                     $this->document->setTitle($manufacturer_info['name']);
+                }
+		    ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$url = '';]]></search>
+            <add position="before"><![CDATA[
+                $this->document->setDescription($manufacturer_info['meta_description']);
+                $this->document->setKeywords($manufacturer_info['meta_keyword']);
+                $data['description'] = html_entity_decode($manufacturer_info['description'], ENT_QUOTES, 'UTF-8');
+
+                if ($manufacturer_info['image']) {
+                    $data['thumb'] = $this->model_tool_image->resize($manufacturer_info['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_manufacturer_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_manufacturer_height'));
+                } else {
+                    $data['thumb'] = '';
                 }
 		    ]]></add>
         </operation>
